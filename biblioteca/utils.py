@@ -2,7 +2,7 @@ from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import timedelta, date
-from .models import Emprestimo, Usuario, HistoricoEmprestimo
+from .models import Emprestimo, Usuario, HistoricoEmprestimo, Titulo, Exemplar
 
 
 class EmprestimoService:
