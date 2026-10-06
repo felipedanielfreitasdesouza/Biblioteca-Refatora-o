@@ -651,7 +651,7 @@ def emprestimo_list(request):
     elif status == 'atrasado':
         emprestimos = emprestimos.filter(
             data_devolucao__isnull=True,
-            previsao_devolucao__lt=timezone.now().date()
+            previsao_devolucao__lt=hoje
         )
 
     # Busca por usuário, livro ou código
@@ -697,7 +697,7 @@ def emprestimo_list(request):
     emprestimos_ativos = Emprestimo.objects.filter(data_devolucao__isnull=True).count()
     emprestimos_atrasados = Emprestimo.objects.filter(
         data_devolucao__isnull=True,
-        previsao_devolucao__lt=timezone.now().date()
+        previsao_devolucao__lt=hoje
     ).count()
     emprestimos_devolvidos = Emprestimo.objects.filter(data_devolucao__isnull=False).count()
 
@@ -823,7 +823,7 @@ def devolucao(request):
         'total_ativos': Emprestimo.objects.filter(data_devolucao__isnull=True).count(),
         'total_atrasados': Emprestimo.objects.filter(
             data_devolucao__isnull=True,
-            previsao_devolucao__lt=timezone.now().date()
+            previsao_devolucao__lt=hoje
         ).count(),
     }
     
@@ -998,7 +998,7 @@ def usuario_detail(request, usuario_id):
     emprestimos_atrasados = Emprestimo.objects.filter(
         usuario=usuario,
         data_devolucao__isnull=True,
-        previsao_devolucao__lt=timezone.now().date()
+        previsao_devolucao__lt=hoje
     ).count()
     
     context = {
@@ -1017,9 +1017,32 @@ def relatorios(request):
     from django.db.models.functions import TruncMonth
 
     # Estatísticas gerais
-    todos_os_usuarios = Usuario.objects.all()
+    hoje = timezone.now().date()
+
+    emprestimo_atrasado = Emprestimo.objects.filter(
+        usuario=OuterRef('pk'),
+        data_devolucao__isnull=True,
+        previsao_devolucao__lt=hoje
+    )
+
+    todos_os_usuarios = Usuario.objects.annotate(
+        tem_atraso_relatorio=Exists(emprestimo_atrasado)
+    ).annotate(
+        esta_suspenso_calc=Case(
+            When(
+                Q(data_suspensao__gte=hoje) |
+                Q(tem_atraso_relatorio=True),
+                then=Value(True)
+            ),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    )
+
     total_usuarios = todos_os_usuarios.count()
-    total_suspensos = sum(1 for u in todos_os_usuarios if u.esta_suspenso())
+    total_suspensos = todos_os_usuarios.filter(
+        esta_suspenso_calc=True
+    ).count()
     total_ativos = total_usuarios - total_suspensos
     total_titulos = Titulo.objects.count()
     total_exemplares = Exemplar.objects.count()
@@ -1029,7 +1052,7 @@ def relatorios(request):
     emprestimos_ativos = Emprestimo.objects.filter(data_devolucao__isnull=True).count()
     emprestimos_atrasados_count = Emprestimo.objects.filter(
         data_devolucao__isnull=True, 
-        previsao_devolucao__lt=timezone.now().date()
+        previsao_devolucao__lt=hoje
     ).count()
     emprestimos_devolvidos = Emprestimo.objects.filter(data_devolucao__isnull=False).count()
 
@@ -1059,8 +1082,11 @@ def relatorios(request):
 
     # Lista de empréstimos atrasados
     emprestimos_atrasados_lista = Emprestimo.objects.filter(
-        data_devolucao__isnull=True, 
-        previsao_devolucao__lt=timezone.now().date()
+        data_devolucao__isnull=True,
+        previsao_devolucao__lt=hoje
+    ).select_related(
+        'usuario',
+        'exemplar__titulo'
     ).order_by('previsao_devolucao')
 
     context = {
