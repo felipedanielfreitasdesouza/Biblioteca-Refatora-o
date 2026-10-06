@@ -440,7 +440,17 @@ def admin_dashboard(request):
 @user_passes_test(is_administrador)
 def titulo_list(request):
     """Lista de títulos para administradores"""
-    titulos = Titulo.objects.all().order_by('titulo_da_obra')
+    titulos = Titulo.objects.annotate(
+    total_exemplares_calc=Count(
+        'exemplares',
+        distinct=True
+    ),
+    exemplares_disponiveis_calc=Count(
+        'exemplares',
+        filter=Q(exemplares__disponivel=True),
+        distinct=True
+    )
+).order_by('titulo_da_obra')
     
     # Busca
     busca = request.GET.get('busca', '')

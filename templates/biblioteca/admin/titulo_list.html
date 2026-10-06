@@ -98,11 +98,11 @@
                                         <td>{{ titulo.ano_publicacao }}</td>
                                         <td>
                                             <span class="badge bg-success">
-                                                {{ titulo.exemplares_disponiveis }} {% if titulo.exemplares_disponiveis == 1 %}disponível{% else %}disponíveis{% endif %}
+                                                {{ titulo.exemplares_disponiveis_calc }} {% if titulo.exemplares_disponiveis_calc == 1 %}disponível{% else %}disponíveis{% endif %}
                                             </span>
                                             <br>
                                             <small class="text-muted">
-                                                Total: {{ titulo.total_exemplares }}
+                                                Total: {{ titulo.total_exemplares_calc }}
                                             </small>
                                         </td>
                                         <td>
