@@ -289,15 +289,39 @@ def acervo(request):
 
 
 def exemplar_detail(request, exemplar_id):
-    """Detalhes do exemplar via QR Code"""
-    exemplar = get_object_or_404(Exemplar, id=exemplar_id)
-    
+    exemplar = get_object_or_404(
+        Exemplar.objects.select_related(
+            'titulo'
+        ).prefetch_related(
+            'titulo__exemplares'
+        ),
+        id=exemplar_id
+    )
+
+    try:
+        emprestimo_atual = Emprestimo.objects.select_related(
+            'usuario'
+        ).get(
+            exemplar=exemplar,
+            data_devolucao__isnull=True
+        )
+    except Emprestimo.DoesNotExist:
+        emprestimo_atual = None
+
     context = {
         'exemplar': exemplar,
-        'pode_emprestar': request.user.is_authenticated and request.user.pode_emprestar(),
-        'emprestimo_atual': exemplar.emprestimo_atual() if exemplar.esta_emprestado() else None
+        'pode_emprestar': (
+            request.user.is_authenticated and
+            request.user.pode_emprestar()
+        ),
+        'emprestimo_atual': emprestimo_atual,
     }
-    return render(request, 'biblioteca/exemplar_detail.html', context)
+
+    return render(
+        request,
+        'biblioteca/exemplar_detail.html',
+        context
+    )
 
 
 # Views de usuário autenticado
