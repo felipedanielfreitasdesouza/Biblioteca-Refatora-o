@@ -810,6 +810,7 @@ def emprestimo_detail(request, emprestimo_id):
 def devolucao(request):
     """Realizar devolução"""
     emprestimo_encontrado = None
+    hoje = timezone.now().date()
     
     if request.method == 'POST':
         form = DevolucaoForm(request.POST)
@@ -1011,6 +1012,7 @@ def reativar_usuario(request, usuario_id):
 def usuario_detail(request, usuario_id):
     """Página de detalhes do usuário"""
     usuario = get_object_or_404(Usuario, id=usuario_id)
+    hoje = timezone.now().date()
     
     # Buscar empréstimos recentes
     emprestimos_recentes = Emprestimo.objects.filter(
