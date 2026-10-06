@@ -113,7 +113,7 @@
                                         <td>
                                             {% if usuario.is_administrador %}
                                                 <span class="badge bg-danger">Administrador</span>
-                                            {% elif usuario.esta_suspenso %}
+                                            {% elif usuario.esta_suspenso_calc_calc_calc_calc %}
                                                 <span class="badge bg-warning">Suspenso</span>
                                             {% else %}
                                                 <span class="badge bg-success">Ativo</span>
@@ -132,7 +132,7 @@
                                                     <i class="bi bi-eye"></i>
                                                 </a>
                                                 {% if not usuario.is_administrador %}
-                                                    {% if usuario.esta_suspenso %}
+                                                    {% if usuario.esta_suspenso_calc_calc_calc %}
                                                         <button type="button" class="btn btn-outline-success btn-sm"
                                                                 onclick="reativarUsuario('{{ usuario.id }}')">
                                                             <i class="bi bi-check"></i>

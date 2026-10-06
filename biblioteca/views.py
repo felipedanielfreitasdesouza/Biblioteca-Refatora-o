@@ -26,7 +26,16 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q, Count, Exists, OuterRef
+from django.db.models import (
+    BooleanField,
+    Case,
+    Count,
+    Exists,
+    OuterRef,
+    Q,
+    Value,
+    When,
+)
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -796,26 +805,44 @@ def devolucao(request):
 
 @user_passes_test(is_administrador)
 def usuario_list(request):
-    """Lista de usuários"""
+    hoje = timezone.now().date()
+
+    emprestimo_atrasado = Emprestimo.objects.filter(
+        usuario=OuterRef('pk'),
+        data_devolucao__isnull=True,
+        previsao_devolucao__lt=hoje
+    )
+
     usuarios = Usuario.objects.annotate(
         total_emprestimos=Count('emprestimos'),
-        emprestimos_ativos=Count('emprestimos', filter=Q(emprestimos__data_devolucao__isnull=True))
+        emprestimos_ativos=Count(
+            'emprestimos',
+            filter=Q(emprestimos__data_devolucao__isnull=True)
+        ),
+        tem_atraso_calc=Exists(emprestimo_atrasado),
+    ).annotate(
+        esta_suspenso_calc=Case(
+            When(
+                Q(data_suspensao__gte=hoje) |
+                Q(tem_atraso_calc=True),
+                then=Value(True)
+            ),
+            default=Value(False),
+            output_field=BooleanField()
+        )
     ).order_by('first_name', 'last_name')
-    
-    # Filtros
+
     status = request.GET.get('status')
     busca = request.GET.get('busca')
     ordem = request.GET.get('ordem', 'nome')
-    
+
     if status == 'suspenso':
-        ids_suspensos = [u.id for u in usuarios if u.esta_suspenso()]
-        usuarios = usuarios.filter(id__in=ids_suspensos)
+        usuarios = usuarios.filter(esta_suspenso_calc=True)
     elif status == 'ativo':
-        ids_ativos = [u.id for u in usuarios if not u.esta_suspenso()]
-        usuarios = usuarios.filter(id__in=ids_ativos)
+        usuarios = usuarios.filter(esta_suspenso_calc=False)
     elif status == 'admin':
         usuarios = usuarios.filter(is_administrador=True)
-    
+
     if busca:
         usuarios = usuarios.filter(
             Q(first_name__icontains=busca) |
@@ -823,27 +850,41 @@ def usuario_list(request):
             Q(dre__icontains=busca) |
             Q(email__icontains=busca)
         )
-    
-    # Ordenação
+
     if ordem == 'data':
         usuarios = usuarios.order_by('-date_joined')
     elif ordem == 'emprestimos':
         usuarios = usuarios.order_by('-total_emprestimos')
-    else:  # nome
+    else:
         usuarios = usuarios.order_by('first_name', 'last_name')
-    
+
     paginator = Paginator(usuarios, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    # Estatísticas
-    todos_os_usuarios = Usuario.objects.all()
-    total_usuarios = todos_os_usuarios.count()
-    total_suspensos = sum(1 for u in todos_os_usuarios if u.esta_suspenso())
-    total_ativos = total_usuarios - total_suspensos
 
-    administradores = Usuario.objects.filter(is_administrador=True).count()
-    
+    todos_os_usuarios = Usuario.objects.annotate(
+        tem_atraso_calc=Exists(emprestimo_atrasado),
+    ).annotate(
+        esta_suspenso_calc=Case(
+            When(
+                Q(data_suspensao__gte=hoje) |
+                Q(tem_atraso_calc=True),
+                then=Value(True)
+            ),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    )
+
+    total_usuarios = todos_os_usuarios.count()
+    total_suspensos = todos_os_usuarios.filter(
+        esta_suspenso_calc=True
+    ).count()
+    total_ativos = total_usuarios - total_suspensos
+    administradores = Usuario.objects.filter(
+        is_administrador=True
+    ).count()
+
     return render(request, 'biblioteca/admin/usuario_list.html', {
         'page_obj': page_obj,
         'status': status,
