@@ -306,14 +306,18 @@ def dashboard(request):
     """Dashboard do usuário"""
     user = request.user
     emprestimos_ativos = Emprestimo.objects.filter(
-        usuario=user, 
-        data_devolucao__isnull=True
-    ).order_by('previsao_devolucao')
+    usuario=user,
+    data_devolucao__isnull=True
+).select_related(
+    'exemplar__titulo'
+).order_by('previsao_devolucao')
     
     historico_emprestimos = Emprestimo.objects.filter(
-        usuario=user,
-        data_devolucao__isnull=False
-    ).order_by('-data_devolucao')[:5]
+    usuario=user,
+    data_devolucao__isnull=False
+).select_related(
+    'exemplar__titulo'
+).order_by('-data_devolucao')[:5]
     # Normalizar cálculos para histórico: data_devolucao é DateTime, previsao_devolucao é Date
     # Precalcular atributos usados nas templates para evitar comparações datetime x date
     for emprestimo in historico_emprestimos:
