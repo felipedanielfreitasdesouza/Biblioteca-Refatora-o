@@ -32,6 +32,7 @@ from django.db.models import (
     Count,
     Exists,
     OuterRef,
+    Prefetch,
     Q,
     Value,
     When,
@@ -229,7 +230,23 @@ def logout_view(request):
 def acervo(request):
     """Consulta pública do acervo"""
     form = BuscaAcervoForm(request.GET)
-    titulos = Titulo.objects.all()
+    titulos = Titulo.objects.annotate(
+    total_exemplares_calc=Count(
+        'exemplares',
+        distinct=True
+    ),
+    exemplares_disponiveis_calc=Count(
+        'exemplares',
+        filter=Q(exemplares__disponivel=True),
+        distinct=True
+    )
+).prefetch_related(
+    Prefetch(
+        'exemplares',
+        queryset=Exemplar.objects.all(),
+        to_attr='exemplares_carregados'
+    )
+).order_by('titulo_da_obra')
     
     if form.is_valid():
         termo_busca = form.cleaned_data.get('termo_busca')
