@@ -26,7 +26,7 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Exists, OuterRef
 from django.http import JsonResponse, HttpResponse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
@@ -398,23 +398,36 @@ def devolver_exemplar(request, exemplar_id):
         return redirect('dashboard')
 
 
-# Views administrativas
 @user_passes_test(is_administrador)
 def admin_dashboard(request):
-    """Dashboard administrativo"""
+    hoje = timezone.now().date()
+
+    emprestimo_atrasado = Emprestimo.objects.filter(
+        usuario=OuterRef('pk'),
+        data_devolucao__isnull=True,
+        previsao_devolucao__lt=hoje
+    )
+
+    usuarios_suspensos = Usuario.objects.filter(
+        Q(data_suspensao__gte=hoje) |
+        Exists(emprestimo_atrasado)
+    ).count()
+
     context = {
         'total_usuarios': Usuario.objects.count(),
         'total_titulos': Titulo.objects.count(),
         'total_exemplares': Exemplar.objects.count(),
-        'emprestimos_ativos': Emprestimo.objects.filter(data_devolucao__isnull=True).count(),
+        'emprestimos_ativos': Emprestimo.objects.filter(
+            data_devolucao__isnull=True
+        ).count(),
         'emprestimos_atrasados': Emprestimo.objects.filter(
             data_devolucao__isnull=True,
-            previsao_devolucao__lt=timezone.now().date()
+            previsao_devolucao__lt=hoje
         ).count(),
-        'usuarios_suspensos': sum(1 for u in Usuario.objects.all() if u.esta_suspenso()),
+        'usuarios_suspensos': usuarios_suspensos,
     }
-    return render(request, 'biblioteca/admin/dashboard.html', context)
 
+    return render(request, 'biblioteca/admin/dashboard.html', context)
 @user_passes_test(is_administrador)
 def titulo_list(request):
     """Lista de títulos para administradores"""
