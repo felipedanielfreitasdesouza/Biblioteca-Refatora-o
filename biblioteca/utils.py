@@ -199,68 +199,68 @@ Sistema de Biblioteca
         Envia notificações para empréstimos que vencem em breve
         Deve ser executado diariamente via cron job
         """
-    agora = timezone.now()
-    hoje = agora.date()
-    data_limite = hoje + timedelta(
-        days=cls.DIAS_NOTIFICACAO_ANTECIPADA
-    )
-
-    emprestimos_vencendo = list(
-        Emprestimo.objects.filter(
-            data_devolucao__isnull=True,
-            previsao_devolucao__lte=data_limite,
-            previsao_devolucao__gte=hoje
-        ).select_related(
-            'usuario',
-            'exemplar__titulo'
+        agora = timezone.now()
+        hoje = agora.date()
+        data_limite = hoje + timedelta(
+            days=cls.DIAS_NOTIFICACAO_ANTECIPADA
         )
-    )
 
-    historicos = {
-        historico.emprestimo_id: historico
-        for historico in HistoricoEmprestimo.objects.filter(
-            emprestimo_id__in=[
-                emprestimo.id
-                for emprestimo in emprestimos_vencendo
-            ]
-        )
-    }
-
-    historicos_novos = []
-    historicos_alterados = []
-
-    for emprestimo in emprestimos_vencendo:
-        historico = historicos.get(emprestimo.id)
-
-        if historico is None:
-            historico = HistoricoEmprestimo(
-                emprestimo=emprestimo,
-                notificacoes_enviadas=0
+        emprestimos_vencendo = list(
+            Emprestimo.objects.filter(
+                data_devolucao__isnull=True,
+                previsao_devolucao__lte=data_limite,
+                previsao_devolucao__gte=hoje
+            ).select_related(
+                'usuario',
+                'exemplar__titulo'
             )
-            historicos_novos.append(historico)
-
-        if (
-            historico.ultima_notificacao and
-            historico.ultima_notificacao.date() == hoje
-        ):
-            continue
-
-        cls.enviar_email_vencimento(emprestimo)
-
-        historico.notificacoes_enviadas += 1
-        historico.ultima_notificacao = agora
-
-        if historico.pk:
-            historicos_alterados.append(historico)
-
-    if historicos_novos:
-        HistoricoEmprestimo.objects.bulk_create(historicos_novos)
-
-    if historicos_alterados:
-        HistoricoEmprestimo.objects.bulk_update(
-            historicos_alterados,
-            ['notificacoes_enviadas', 'ultima_notificacao']
         )
+
+        historicos = {
+            historico.emprestimo_id: historico
+            for historico in HistoricoEmprestimo.objects.filter(
+                emprestimo_id__in=[
+                    emprestimo.id
+                    for emprestimo in emprestimos_vencendo
+                ]
+            )
+        }
+
+        historicos_novos = []
+        historicos_alterados = []
+
+        for emprestimo in emprestimos_vencendo:
+            historico = historicos.get(emprestimo.id)
+
+            if historico is None:
+                historico = HistoricoEmprestimo(
+                    emprestimo=emprestimo,
+                    notificacoes_enviadas=0
+                )
+                historicos_novos.append(historico)
+
+            if (
+                historico.ultima_notificacao and
+                historico.ultima_notificacao.date() == hoje
+            ):
+                continue
+
+            cls.enviar_email_vencimento(emprestimo)
+
+            historico.notificacoes_enviadas += 1
+            historico.ultima_notificacao = agora
+
+            if historico.pk:
+                historicos_alterados.append(historico)
+
+        if historicos_novos:
+            HistoricoEmprestimo.objects.bulk_create(historicos_novos)
+
+        if historicos_alterados:
+            HistoricoEmprestimo.objects.bulk_update(
+                historicos_alterados,
+                ['notificacoes_enviadas', 'ultima_notificacao']
+            )
     
     @classmethod
     def enviar_email_vencimento(cls, emprestimo):
