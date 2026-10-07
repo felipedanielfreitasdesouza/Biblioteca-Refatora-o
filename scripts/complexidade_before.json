@@ -1,0 +1,227 @@
+{
+  "rotulo": "before",
+  "tamanhos": [
+    10,
+    100,
+    1000
+  ],
+  "repeticoes": 3,
+  "resultados": [
+    {
+      "n": 10,
+      "funcao": "acervo",
+      "status": 200,
+      "consultas": 43,
+      "tempo_medio_ms": 56.4025,
+      "tempo_minimo_ms": 46.4857,
+      "erro": null
+    },
+    {
+      "n": 10,
+      "funcao": "titulo_list",
+      "status": 200,
+      "consultas": 34,
+      "tempo_medio_ms": 46.3628,
+      "tempo_minimo_ms": 41.4282,
+      "erro": null
+    },
+    {
+      "n": 10,
+      "funcao": "admin_dashboard",
+      "status": 200,
+      "consultas": 20,
+      "tempo_medio_ms": 62.0121,
+      "tempo_minimo_ms": 61.2796,
+      "erro": null
+    },
+    {
+      "n": 10,
+      "funcao": "usuario_list",
+      "status": 200,
+      "consultas": 37,
+      "tempo_medio_ms": 52.9682,
+      "tempo_minimo_ms": 47.8171,
+      "erro": null
+    },
+    {
+      "n": 10,
+      "funcao": "relatorios",
+      "status": 200,
+      "consultas": 26,
+      "tempo_medio_ms": 28.5462,
+      "tempo_minimo_ms": 27.3037,
+      "erro": null
+    },
+    {
+      "n": 10,
+      "funcao": "dashboard",
+      "status": 200,
+      "consultas": 13,
+      "tempo_medio_ms": 20.4603,
+      "tempo_minimo_ms": 18.7208,
+      "erro": null
+    },
+    {
+      "n": 10,
+      "funcao": "exemplar_detail",
+      "status": 200,
+      "consultas": 6,
+      "tempo_medio_ms": 32.3091,
+      "tempo_minimo_ms": 13.0268,
+      "erro": null
+    },
+    {
+      "n": 10,
+      "funcao": "enviar_notificacoes_vencimento",
+      "status": 200,
+      "consultas": 51,
+      "tempo_medio_ms": 64.8311,
+      "tempo_minimo_ms": 61.9844,
+      "erro": null
+    },
+    {
+      "n": 100,
+      "funcao": "acervo",
+      "status": 200,
+      "consultas": 403,
+      "tempo_medio_ms": 466.3838,
+      "tempo_minimo_ms": 402.1476,
+      "erro": null
+    },
+    {
+      "n": 100,
+      "funcao": "titulo_list",
+      "status": 200,
+      "consultas": 304,
+      "tempo_medio_ms": 379.31,
+      "tempo_minimo_ms": 350.3595,
+      "erro": null
+    },
+    {
+      "n": 100,
+      "funcao": "admin_dashboard",
+      "status": 200,
+      "consultas": 110,
+      "tempo_medio_ms": 116.4171,
+      "tempo_minimo_ms": 112.9655,
+      "erro": null
+    },
+    {
+      "n": 100,
+      "funcao": "usuario_list",
+      "status": 200,
+      "consultas": 307,
+      "tempo_medio_ms": 402.9076,
+      "tempo_minimo_ms": 384.09,
+      "erro": null
+    },
+    {
+      "n": 100,
+      "funcao": "relatorios",
+      "status": 200,
+      "consultas": 116,
+      "tempo_medio_ms": 185.5899,
+      "tempo_minimo_ms": 125.8306,
+      "erro": null
+    },
+    {
+      "n": 100,
+      "funcao": "dashboard",
+      "status": 200,
+      "consultas": 13,
+      "tempo_medio_ms": 35.8073,
+      "tempo_minimo_ms": 25.0455,
+      "erro": null
+    },
+    {
+      "n": 100,
+      "funcao": "exemplar_detail",
+      "status": 200,
+      "consultas": 6,
+      "tempo_medio_ms": 9.5902,
+      "tempo_minimo_ms": 9.3101,
+      "erro": null
+    },
+    {
+      "n": 100,
+      "funcao": "enviar_notificacoes_vencimento",
+      "status": 200,
+      "consultas": 501,
+      "tempo_medio_ms": 282.2656,
+      "tempo_minimo_ms": 272.3182,
+      "erro": null
+    },
+    {
+      "n": 1000,
+      "funcao": "acervo",
+      "status": 200,
+      "consultas": 4003,
+      "tempo_medio_ms": 4402.5436,
+      "tempo_minimo_ms": 4223.1202,
+      "erro": null
+    },
+    {
+      "n": 1000,
+      "funcao": "titulo_list",
+      "status": 200,
+      "consultas": 3004,
+      "tempo_medio_ms": 3751.5562,
+      "tempo_minimo_ms": 3722.6026,
+      "erro": null
+    },
+    {
+      "n": 1000,
+      "funcao": "admin_dashboard",
+      "status": 200,
+      "consultas": 1010,
+      "tempo_medio_ms": 1290.0337,
+      "tempo_minimo_ms": 971.6404,
+      "erro": null
+    },
+    {
+      "n": 1000,
+      "funcao": "usuario_list",
+      "status": 200,
+      "consultas": 3007,
+      "tempo_medio_ms": 3772.7682,
+      "tempo_minimo_ms": 3576.5756,
+      "erro": null
+    },
+    {
+      "n": 1000,
+      "funcao": "relatorios",
+      "status": 200,
+      "consultas": 1016,
+      "tempo_medio_ms": 1119.6024,
+      "tempo_minimo_ms": 1062.1914,
+      "erro": null
+    },
+    {
+      "n": 1000,
+      "funcao": "dashboard",
+      "status": 200,
+      "consultas": 13,
+      "tempo_medio_ms": 17.5829,
+      "tempo_minimo_ms": 17.1367,
+      "erro": null
+    },
+    {
+      "n": 1000,
+      "funcao": "exemplar_detail",
+      "status": 200,
+      "consultas": 6,
+      "tempo_medio_ms": 7.0617,
+      "tempo_minimo_ms": 6.5069,
+      "erro": null
+    },
+    {
+      "n": 1000,
+      "funcao": "enviar_notificacoes_vencimento",
+      "status": 200,
+      "consultas": 5001,
+      "tempo_medio_ms": 2317.8873,
+      "tempo_minimo_ms": 2253.6355,
+      "erro": null
+    }
+  ]
+}
